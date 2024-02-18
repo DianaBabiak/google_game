@@ -1,4 +1,4 @@
-class Game {
+export class Game {
     #settings
     #status = 'pending'
     #player1
@@ -9,9 +9,10 @@ class Game {
         player2: 0
     }
     #idGoogleJumpInterval
-
-    constructor() {
-        this.#settings = new Settings(4, 5)
+    eventEmitter
+    constructor(eventEmitter) {
+        this.#settings = new Settings()
+        this.eventEmitter=eventEmitter
 
     }
 
@@ -34,6 +35,9 @@ class Game {
 
 
     #movePlayer(player, otherPlayer, delta) {
+        if(this.#status==='finished'){
+            return
+        }
 
         const isBorder = this.#checkBorder(player, delta)
         const isOtherPlayer = this.#checkOtherPlayer(player, otherPlayer, delta)
@@ -51,6 +55,7 @@ class Game {
           player.position.y += delta.y
         }
         this.#catchGoogle(player)
+        this.eventEmitter.emit("change")
 
     }
     movePlayer1ToRight() {
@@ -152,6 +157,7 @@ class Game {
 
         const newPositionGoogle = this.#getRandomPosition([this.#player1.position, this.#player2.position, this.#google.position])
         this.#google.position = new Position(newPositionGoogle.x, newPositionGoogle.y)
+        this.eventEmitter.emit("change")
     }
 
     get score() {
@@ -200,6 +206,8 @@ class Game {
             const positionGoogle = this.#getRandomPosition([this.#player1.position, this.#player2.position])
             this.#google = new Google({x:positionGoogle.x, y:positionGoogle.y})
             this.#runGoogleJumpInterval()
+            this.score.player1=0
+            this.score.player2=0
 
         }
     }
@@ -217,6 +225,7 @@ class Game {
     async #finishGame(){
         clearInterval(this.#idGoogleJumpInterval)
         this.#status='finished'
+        this.#randomGooglePosition()
 }
 }
 
@@ -226,7 +235,7 @@ class Settings {
     #gridSize
     #googleJumpInterval = 2000
 
-    constructor(columns, rows) {
+    constructor(columns=4, rows=4) {
         this.#gridSize = {
             columns,
             rows
@@ -329,10 +338,10 @@ class Position {
 
 }
 
-module.exports = {
-    Game,
-    Settings,
-    Player,
-    NumberUtils,
-    Position
-}
+// module.exports = {
+//     Game,
+//     Settings,
+//     Player,
+//     NumberUtils,
+//     Position
+// }
