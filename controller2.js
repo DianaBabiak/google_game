@@ -9,42 +9,23 @@ export const DIRECTION = {
     RIGHT: 'right'
 }
 
-export class Controller1 {
+export class Controller2 {
     #game
     #wsAdapter
-
 
     constructor(game, wsAdapter) {
         this.#game = game
         this.#wsAdapter = wsAdapter
         this.#wsAdapter.subscribe('new-message', (event) => {
             if (event.type === "GOOGLE/JUMPED") {
-                this.#game.setGooglePosition(event.payload.x, event.payload.y)
+                this.#game.setGooglePosition(event.payload)
             }
-
-            if (event.type === "PLAYER/MOVE") {
-                this.#reallyMovePlayer(event.payload.direction, event.payload.numberPlayer)
-            }
-            if (event.type === "PLAYER/STARTED_POSITIONS_SET") {
-                this.#game.setPlayerPosition(event.payload.x, event.payload.y, event.payload.playerNumber)
-            }
-
 
         })
 
     }
 
     movePlayer(direction, playerNumber) {
-        this.#wsAdapter.send({
-            commandType: "MOVE-PLAYER",
-            payload: {
-                direction,
-                playerNumber
-            }
-        })
-    }
-
-    #reallyMovePlayer(direction, playerNumber) {
         switch (direction) {
             case DIRECTION.UP:
                 this.#game[`movePlayer${playerNumber}ToUp`]()
@@ -66,3 +47,4 @@ export class Controller1 {
 
 
 }
+
