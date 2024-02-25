@@ -16,17 +16,16 @@ export class EventsFactory {
             direction = DIRECTION.LEFT
         }
         if (delta.y > 0) {
-            direction = DIRECTION.UP
+            direction = DIRECTION.DOWN
         }
         if (delta.y < 0) {
-            direction = DIRECTION.RIGHT
+            direction = DIRECTION.UP
         }
         return {
             type: "PLAYER/MOVE",
             payload: {direction, numberPlayer}
         }
     }
-
     googleJumped(x, y) {
         return {
             type: "GOOGLE/JUMPED",
@@ -57,6 +56,7 @@ export class Game {
     #idGoogleJumpInterval
     eventEmitter
     #eventFactory
+
 
     constructor(eventEmitter, eventFactory) {
         this.#settings = new Settings()
@@ -202,6 +202,7 @@ export class Game {
                 clearInterval(this.#idGoogleJumpInterval)
                 this.#randomGooglePosition()
                 this.#runGoogleJumpInterval()
+
             }
         }
     }
@@ -230,10 +231,12 @@ export class Game {
 
 
     #randomGooglePosition() {
+        this.eventEmitter.emit("change", this.#eventFactory.googleJumped(this.#google.position.x, this.#google.position.y))
 
         const newPositionGoogle = this.#getRandomPosition([this.#player1.position, this.#player2.position, this.#google.position])
         this.#google.position = new Position(newPositionGoogle.x, newPositionGoogle.y)
-        this.eventEmitter.emit("change", this.#eventFactory.googleJumped(this.#google.position.x, this.#google.position.y))
+
+
     }
 
     get score() {
@@ -285,29 +288,34 @@ export class Game {
 
     #creatUnitsForClientMode() {
         this.#player1 = new Player({
-            x: NumberUtils.getRandomPosition(1, 1),
-            y: NumberUtils.getRandomPosition(1, 1)
+            x: 1,
+            y: 1
         }, 1)
         this.eventEmitter.emit('change', this.#eventFactory.playerStartedPositionSet(this.#player1.position.x, this.#player1.position.y,1))
         this.#player2 = new Player({x: 1, y: 2}, 2)
         this.eventEmitter.emit('change', this.#eventFactory.playerStartedPositionSet(this.#player2.position.x, this.#player2.position.y,2))
-        this.#google = new Google({x: 1, y: 3})
+        this.#google = new Google({x: 1, y: 3});
+        this.#runGoogleJumpInterval()
+
+
 
     }
 
     async start() {
         if (this.#status === 'pending') {
+
             this.#status = 'in-progress'
 
             if (this.#settings.mode !== MODE.CLIENT) {
                 this.#creatUnits()
                 this.#runGoogleJumpInterval()
-            } else{
+            } else {
                 this.#creatUnitsForClientMode()
+
+
             }
             this.score.player1 = 0
             this.score.player2 = 0
-
         }
     }
 

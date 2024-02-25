@@ -18,8 +18,11 @@ game.eventEmitter.subscribe('change', (e) => {
 const connections = []
 
 wss.on('connection', async function connection(ws) {
+    console.log(connections.length,'connections.length')
     connections.push(ws)
+    console.log(connections.length,'connections.length')
     if (connections.length === 2) {
+        game.settings.mode = MODE.CLIENT
         await game.start()
     }
 

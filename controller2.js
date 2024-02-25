@@ -11,17 +11,12 @@ export const DIRECTION = {
 
 export class Controller2 {
     #game
-    #wsAdapter
+
 
     constructor(game, wsAdapter) {
         this.#game = game
-        this.#wsAdapter = wsAdapter
-        this.#wsAdapter.subscribe('new-message', (event) => {
-            if (event.type === "GOOGLE/JUMPED") {
-                this.#game.setGooglePosition(event.payload)
-            }
 
-        })
+
 
     }
 
